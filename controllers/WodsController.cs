@@ -86,7 +86,6 @@ namespace fitness_tracker.controllers
         }
 
         [Authorize(Roles = "Coach")]
-        [Authorize(Roles = "Coach,Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWod(int id, [FromBody] UpdateWodDto dto)
         {
