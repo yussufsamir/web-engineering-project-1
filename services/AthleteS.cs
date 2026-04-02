@@ -1,44 +1,42 @@
 using fitness_tracker.models;
 using fitness_tracker.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace fitness_tracker.Services
 {
     public class AthleteService : IAthleteService
     {
         private readonly AppDbContext _context;
+
         public AthleteService(AppDbContext context)
         {
             _context = context;
         }
-        public List<Athlete> GetAllAthletes()
+
+        public async Task<List<Athlete>> GetAllAthletesAsync()
         {
-            return _context.Athletes.ToList();
+            return await _context.Athletes
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public Athlete GetAthleteById(int id)
+        public async Task<Athlete?> GetAthleteByIdAsync(int id)
         {
-            return _context.Athletes.FirstOrDefault(a => a.Id == id);
+            return await _context.Athletes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
-        public Athlete CreateAthlete(Athlete newAthlete)
+
+        public async Task<Athlete> CreateAthleteAsync(Athlete newAthlete)
         {
             _context.Athletes.Add(newAthlete);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return newAthlete;
         }
-        public bool DeleteAthlete(int id)
+
+        public async Task<Athlete?> UpdateAthleteAsync(int id, Athlete updatedAthlete)
         {
-            var athlete = _context.Athletes.FirstOrDefault(a => a.Id == id);
-
-            if (athlete == null)
-                return false;
-
-            _context.Athletes.Remove(athlete);
-            _context.SaveChanges();
-
-            return true;
-        }
-        public Athlete UpdateAthlete(int id, Athlete updatedAthlete)
-        {
-            var athlete = _context.Athletes.FirstOrDefault(a => a.Id == id);
+            var athlete = await _context.Athletes.FirstOrDefaultAsync(a => a.Id == id);
 
             if (athlete == null)
                 return null;
@@ -48,10 +46,20 @@ namespace fitness_tracker.Services
             athlete.Password = updatedAthlete.Password;
             athlete.Role = updatedAthlete.Role;
 
-            _context.SaveChanges();
-
+            await _context.SaveChangesAsync();
             return athlete;
         }
 
+        public async Task<bool> DeleteAthleteAsync(int id)
+        {
+            var athlete = await _context.Athletes.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (athlete == null)
+                return false;
+
+            _context.Athletes.Remove(athlete);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

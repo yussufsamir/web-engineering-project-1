@@ -4,10 +4,10 @@ namespace fitness_tracker.Services
 {
     public interface IAthleteService
     {
-        List<Athlete> GetAllAthletes();
-        Athlete GetAthleteById(int id);
-        Athlete CreateAthlete(Athlete newAthlete);
-        bool DeleteAthlete(int id);
-        Athlete UpdateAthlete(int id, Athlete updatedAthlete);
+        Task<List<Athlete>> GetAllAthletesAsync();
+        Task<Athlete?> GetAthleteByIdAsync(int id);
+        Task<Athlete> CreateAthleteAsync(Athlete newAthlete);
+        Task<Athlete?> UpdateAthleteAsync(int id, Athlete updatedAthlete);
+        Task<bool> DeleteAthleteAsync(int id);
     }
 }

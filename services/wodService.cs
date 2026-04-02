@@ -1,27 +1,37 @@
 using fitness_tracker.models;
 using fitness_tracker.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace fitness_tracker.Services
 {
-    public class WodService: IWodService
+    public class WodService : IWodService
     {
         private readonly AppDbContext _context;
+
         public WodService(AppDbContext context)
         {
-           _context = context;
+            _context = context;
         }
-        public List<Wod> GetAllWods()
+
+        public async Task<List<Wod>> GetAllWodsAsync()
         {
-            return _context.Wods.ToList();
+            return await _context.Wods
+                .AsNoTracking()
+                .ToListAsync();
         }
-        public Wod GetWodById(int id)
+
+        public async Task<Wod?> GetWodByIdAsync(int id)
         {
-            return _context.Wods.FirstOrDefault(w => w.Id == id);
+            return await _context.Wods
+                .AsNoTracking()
+                .FirstOrDefaultAsync(w => w.Id == id);
         }
-        public Wod CreateWod(Wod newWod)
+
+        public async Task<Wod> CreateWodAsync(Wod newWod)
         {
             newWod.CreatedAt = DateTime.Now;
             _context.Wods.Add(newWod);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return newWod;
         }
     }

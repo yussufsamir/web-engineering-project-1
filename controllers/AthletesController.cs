@@ -16,11 +16,12 @@ namespace fitness_tracker.controllers
             _athleteService = athleteService;
         }
 
-        [Authorize(Roles = "Admin,Coach")]    
+        [Authorize(Roles = "Coach,Admin")]
         [HttpGet]
-        public IActionResult GetAllAthletes()
+        public async Task<IActionResult> GetAllAthletes()
         {
-            var athletes = _athleteService.GetAllAthletes();
+            var athletes = await _athleteService.GetAllAthletesAsync();
+
             var result = athletes.Select(a => new AthleteResponseDto
             {
                 Id = a.Id,
@@ -28,19 +29,29 @@ namespace fitness_tracker.controllers
                 Email = a.Email,
                 Role = a.Role
             });
+
             return Ok(result);
         }
 
         [Authorize(Roles = "Athlete,Coach,Admin")]
         [HttpGet("{id}")]
-        public IActionResult GetAthleteById(int id)
+        public async Task<IActionResult> GetAthleteById(int id)
         {
-            var athlete = _athleteService.GetAthleteById(id);
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || string.IsNullOrEmpty(roleClaim))
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim);
+
+            if (roleClaim == "Athlete" && userId != id)
+                return Forbid();
+
+            var athlete = await _athleteService.GetAthleteByIdAsync(id);
 
             if (athlete == null)
                 return NotFound();
-            if (User.IsInRole("Athlete") && User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value != athlete.Id.ToString())
-                return Forbid();
 
             var result = new AthleteResponseDto
             {
@@ -48,14 +59,14 @@ namespace fitness_tracker.controllers
                 FullName = athlete.FullName,
                 Email = athlete.Email,
                 Role = athlete.Role
-
             };
+
             return Ok(result);
         }
         [HttpPost]
-        public IActionResult CreateAthlete([FromBody] CreateAthleteDto dto)
+        public async Task<IActionResult> CreateAthlete([FromBody] CreateAthleteDto dto)
         {
-            var newAthlete = new Athlete
+            var athlete = new Athlete
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
@@ -63,7 +74,7 @@ namespace fitness_tracker.controllers
                 Role = dto.Role
             };
 
-            var createdAthlete = _athleteService.CreateAthlete(newAthlete);
+            var createdAthlete = await _athleteService.CreateAthleteAsync(athlete);
 
             var result = new AthleteResponseDto
             {
@@ -73,16 +84,16 @@ namespace fitness_tracker.controllers
                 Role = createdAthlete.Role
             };
 
-            return CreatedAtAction(nameof(GetAthleteById), new { id = result.Id }, result);
+            return CreatedAtAction(nameof(GetAthleteById), new { id = createdAthlete.Id }, result);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        public IActionResult DeleteAthlete(int id)
+        public async Task<IActionResult> DeleteAthlete(int id)
         {
-            var success = _athleteService.DeleteAthlete(id);
+            var deleted = await _athleteService.DeleteAthleteAsync(id);
 
-            if (!success)
+            if (!deleted)
                 return NotFound();
 
             return NoContent();
@@ -90,9 +101,9 @@ namespace fitness_tracker.controllers
 
         [Authorize(Roles = "Athlete,Admin")]
         [HttpPut("{id}")]
-        public IActionResult UpdateAthlete(int id, [FromBody] UpdateAthleteDto dto)
+        public async Task<IActionResult> UpdateAthlete(int id, [FromBody] UpdateAthleteDto dto)
         {
-            var updatedAthlete = new Athlete
+            var athlete = new Athlete
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
@@ -100,20 +111,20 @@ namespace fitness_tracker.controllers
                 Role = dto.Role
             };
 
-            var athlete = _athleteService.UpdateAthlete(id, updatedAthlete);
+            var updatedAthlete = await _athleteService.UpdateAthleteAsync(id, athlete);
 
-            if (athlete == null)
+            if (updatedAthlete == null)
                 return NotFound();
 
             var result = new AthleteResponseDto
             {
-                Id = athlete.Id,
-                FullName = athlete.FullName,
-                Email = athlete.Email,
-                Role = athlete.Role
+                Id = updatedAthlete.Id,
+                FullName = updatedAthlete.FullName,
+                Email = updatedAthlete.Email,
+                Role = updatedAthlete.Role
             };
 
             return Ok(result);
-        }     
+        }
     }
 }

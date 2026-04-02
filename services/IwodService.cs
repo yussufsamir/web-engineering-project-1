@@ -4,8 +4,8 @@ namespace fitness_tracker.Services
 {
     public interface IWodService
     {
-        List<Wod> GetAllWods();
-        Wod GetWodById(int id);
-        Wod CreateWod(Wod newWod);
+        Task<List<Wod>> GetAllWodsAsync();
+        Task<Wod?> GetWodByIdAsync(int id);
+        Task<Wod> CreateWodAsync(Wod newWod);
     }
 }

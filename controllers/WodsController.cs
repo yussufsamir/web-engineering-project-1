@@ -19,9 +19,10 @@ namespace fitness_tracker.controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetAllWods()
+        public async Task<IActionResult> GetAllWods()
         {
-            var wods = _wodService.GetAllWods();
+            var wods = await _wodService.GetAllWodsAsync();
+
             var result = wods.Select(w => new WodResponseDto
             {
                 Id = w.Id,
@@ -36,14 +37,14 @@ namespace fitness_tracker.controllers
         }
         [Authorize]
         [HttpGet("{id}")]
-        public IActionResult GetWodById(int id)
+        public async Task<IActionResult> GetWodById(int id)
         {
-            var wod = _wodService.GetWodById(id);
+            var wod = await _wodService.GetWodByIdAsync(id);
 
             if (wod == null)
                 return NotFound();
-            
-            var res= new WodResponseDto
+
+            var result = new WodResponseDto
             {
                 Id = wod.Id,
                 Title = wod.Title,
@@ -52,14 +53,15 @@ namespace fitness_tracker.controllers
                 Difficulty = wod.Difficulty,
                 CreatedAt = wod.CreatedAt
             };
-            return Ok(res);
+
+            return Ok(result);
         }
 
         [Authorize(Roles = "Coach")]
         [HttpPost]
-        public IActionResult CreateWod([FromBody] CreateWodDto dto)
+        public async Task<IActionResult> CreateWod([FromBody] CreateWodDto dto)
         {
-            var newWod = new Wod
+            var wod = new Wod
             {
                 Title = dto.Title,
                 Description = dto.Description,
@@ -68,10 +70,19 @@ namespace fitness_tracker.controllers
                 CoachId = dto.CoachId
             };
 
-            var createdWod = _wodService.CreateWod(newWod);
+            var createdWod = await _wodService.CreateWodAsync(wod);
 
+            var result = new WodResponseDto
+            {
+                Id = createdWod.Id,
+                Title = createdWod.Title,
+                Description = createdWod.Description,
+                Category = createdWod.Category,
+                Difficulty = createdWod.Difficulty,
+                CreatedAt = createdWod.CreatedAt
+            };
 
-            return CreatedAtAction(nameof(GetWodById), new { id = createdWod.Id }, createdWod);
+            return CreatedAtAction(nameof(GetWodById), new { id = createdWod.Id }, result);
         }
     }
 }

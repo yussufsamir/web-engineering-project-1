@@ -1,7 +1,6 @@
 using fitness_tracker.models;
-using fitness_tracker.Services;
-using Microsoft.EntityFrameworkCore;
 using fitness_tracker.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace fitness_tracker.Services
 {
@@ -14,34 +13,36 @@ namespace fitness_tracker.Services
             _context = context;
         }
 
-        public List<WorkoutAssignment> GetAssignmentsByAthleteId(int athleteId)
+        public async Task<List<WorkoutAssignment>> GetAssignmentsByAthleteIdAsync(int athleteId)
         {
-            return _context.WorkoutAssignments
+            return await _context.WorkoutAssignments
+                .AsNoTracking()
                 .Include(a => a.Athlete)
                 .Include(a => a.Wod)
                 .Where(a => a.AthleteId == athleteId)
-                .ToList();
+                .ToListAsync();
         }
 
-        public (WorkoutAssignment? Assignment, string? ErrorMessage) CreateAssignment(WorkoutAssignment newAssignment)
+        public async Task<(WorkoutAssignment? Assignment, string? ErrorMessage)> CreateAssignmentAsync(WorkoutAssignment newAssignment)
         {
-            var athleteExists = _context.Athletes.Any(a => a.Id == newAssignment.AthleteId);
+            var athleteExists = await _context.Athletes.AnyAsync(a => a.Id == newAssignment.AthleteId);
             if (!athleteExists)
                 return (null, "Athlete does not exist.");
 
-            var wodExists = _context.Wods.Any(w => w.Id == newAssignment.WodId);
+            var wodExists = await _context.Wods.AnyAsync(w => w.Id == newAssignment.WodId);
             if (!wodExists)
                 return (null, "WOD does not exist.");
 
             newAssignment.AssignedDate = DateTime.Now;
 
             _context.WorkoutAssignments.Add(newAssignment);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var createdAssignment = _context.WorkoutAssignments
+            var createdAssignment = await _context.WorkoutAssignments
+                .AsNoTracking()
                 .Include(a => a.Athlete)
                 .Include(a => a.Wod)
-                .FirstOrDefault(a => a.Id == newAssignment.Id);
+                .FirstOrDefaultAsync(a => a.Id == newAssignment.Id);
 
             return (createdAssignment, null);
         }

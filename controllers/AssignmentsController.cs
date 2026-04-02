@@ -20,14 +20,20 @@ namespace fitness_tracker.controllers
 
         [Authorize(Roles = "Athlete,Coach")]
         [HttpGet("athlete/{athleteId}")]
-        public IActionResult GetAssignmentsByAthleteId(int athleteId)
+        public async Task<IActionResult> GetAssignmentsByAthleteId(int athleteId)
         {
-            var assignments = _assignmentService.GetAssignmentsByAthleteId(athleteId);
-            var userId = int.Parse(User.FindFirst("UserId").Value);
-            var role = User.FindFirst(ClaimTypes.Role).Value;
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            if (role == "Athlete" && userId != athleteId)
+            if (string.IsNullOrEmpty(userIdClaim) || string.IsNullOrEmpty(roleClaim))
+                return Unauthorized();
+
+            var userId = int.Parse(userIdClaim);
+
+            if (roleClaim == "Athlete" && userId != athleteId)
                 return Forbid();
+
+            var assignments = await _assignmentService.GetAssignmentsByAthleteIdAsync(athleteId);
 
             if (!assignments.Any())
                 return NotFound();
@@ -50,38 +56,38 @@ namespace fitness_tracker.controllers
 
         [Authorize(Roles = "Coach")]
         [HttpPost]
-        public IActionResult CreateAssignment([FromBody] CreateAssignmentDto dto)
+        public async Task<IActionResult> CreateAssignment([FromBody] CreateAssignmentDto dto)
         {
-        var assignment = new WorkoutAssignment
-        {
-            AthleteId = dto.AthleteId,
-            WodId = dto.WodId,
-            DueDate = dto.DueDate,
-            Status = dto.Status,
-            Notes = dto.Notes
-        };
+            var assignment = new WorkoutAssignment
+            {
+                AthleteId = dto.AthleteId,
+                WodId = dto.WodId,
+                DueDate = dto.DueDate,
+                Status = dto.Status,
+                Notes = dto.Notes
+            };
 
-        var resultFromService = _assignmentService.CreateAssignment(assignment);
+            var resultFromService = await _assignmentService.CreateAssignmentAsync(assignment);
 
-        if (resultFromService.Assignment == null)
-            return BadRequest(new { message = resultFromService.ErrorMessage });
+            if (resultFromService.Assignment == null)
+                return BadRequest(new { message = resultFromService.ErrorMessage });
 
-        var createdAssignment = resultFromService.Assignment;
+            var createdAssignment = resultFromService.Assignment;
 
-        var result = new AssignmentResponseDto
-        {
-            Id = createdAssignment.Id,
-            AthleteId = createdAssignment.AthleteId,
-            AthleteName = createdAssignment.Athlete.FullName,
-            WodId = createdAssignment.WodId,
-            WodTitle = createdAssignment.Wod.Title,
-            AssignedDate = createdAssignment.AssignedDate,
-            DueDate = createdAssignment.DueDate,
-            Status = createdAssignment.Status,
-            Notes = createdAssignment.Notes
-        };
+            var result = new AssignmentResponseDto
+            {
+                Id = createdAssignment.Id,
+                AthleteId = createdAssignment.AthleteId,
+                AthleteName = createdAssignment.Athlete.FullName,
+                WodId = createdAssignment.WodId,
+                WodTitle = createdAssignment.Wod.Title,
+                AssignedDate = createdAssignment.AssignedDate,
+                DueDate = createdAssignment.DueDate,
+                Status = createdAssignment.Status,
+                Notes = createdAssignment.Notes
+            };
 
-        return CreatedAtAction(nameof(GetAssignmentsByAthleteId), new { athleteId = createdAssignment.AthleteId }, result);
-    }
+            return CreatedAtAction(nameof(GetAssignmentsByAthleteId), new { athleteId = createdAssignment.AthleteId }, result);
+        }
     }
 }
