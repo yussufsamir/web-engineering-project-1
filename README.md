@@ -8,7 +8,7 @@ The system implements authentication, authorization, DTO validation, and optimiz
 
 ---
 
-##  Features
+## Features
 
 - Athlete signup and login
 - Coach signup and login
@@ -26,7 +26,7 @@ The system implements authentication, authorization, DTO validation, and optimiz
 
 ---
 
-##  Technologies Used
+## Technologies Used
 
 - **ASP.NET Core Web API**  
   Used to build the backend RESTful API.
@@ -46,6 +46,20 @@ The system implements authentication, authorization, DTO validation, and optimiz
 - **Postman**  
   Used for testing and documenting API endpoints.
 
+## API Testing Screenshots
+
+All Postman testing results are included in the `Screenshots` folder within the project.
+
+The screenshots demonstrate:
+- Athlete signup
+- Coach signup
+- Login and JWT token generation
+- Protected endpoint access
+- Role-based authorization (including forbidden access)
+- WOD creation and retrieval
+- Assignment creation
+- Coach dashboard
+
 ---
 
 ## How to Run the Project
@@ -54,3 +68,4 @@ The system implements authentication, authorization, DTO validation, and optimiz
 
 ```bash
 docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Fitness!1234" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+
