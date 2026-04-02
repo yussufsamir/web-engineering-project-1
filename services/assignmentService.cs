@@ -46,5 +46,23 @@ namespace fitness_tracker.Services
 
             return (createdAssignment, null);
         }
+
+        public async Task<WorkoutAssignment?> UpdateAssignmentAsync(int id, WorkoutAssignment updatedAssignment)
+        {
+            var assignment = await _context.WorkoutAssignments
+                .Include(a => a.Athlete)
+                .Include(a => a.Wod)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (assignment == null)
+                return null;
+
+            assignment.DueDate = updatedAssignment.DueDate;
+            assignment.Status = updatedAssignment.Status;
+            assignment.Notes = updatedAssignment.Notes;
+
+            await _context.SaveChangesAsync();
+            return assignment;
+        }
     }
 }

@@ -34,5 +34,20 @@ namespace fitness_tracker.Services
             await _context.SaveChangesAsync();
             return newWod;
         }
+        public async Task<Wod?> UpdateWodAsync(int id, Wod updatedWod)
+        {
+            var wod = await _context.Wods.FirstOrDefaultAsync(w => w.Id == id);
+
+            if (wod == null)
+                return null;
+
+            wod.Title = updatedWod.Title;
+            wod.Description = updatedWod.Description;
+            wod.Category = updatedWod.Category;
+            wod.Difficulty = updatedWod.Difficulty;
+
+            await _context.SaveChangesAsync();
+            return wod;
+        }
     }
 }

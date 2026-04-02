@@ -88,6 +88,37 @@ namespace fitness_tracker.controllers
             };
 
             return CreatedAtAction(nameof(GetAssignmentsByAthleteId), new { athleteId = createdAssignment.AthleteId }, result);
+        }       
+       [Authorize(Roles = "Coach")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAssignment(int id, [FromBody] UpdateAssignmentDto dto)
+        {
+            var assignment = new WorkoutAssignment
+            {
+                DueDate = dto.DueDate,
+                Status = dto.Status,
+                Notes = dto.Notes
+            };
+
+            var updatedAssignment = await _assignmentService.UpdateAssignmentAsync(id, assignment);
+
+            if (updatedAssignment == null)
+                return NotFound();
+
+            var result = new AssignmentResponseDto
+            {
+                Id = updatedAssignment.Id,
+                AthleteId = updatedAssignment.AthleteId,
+                AthleteName = updatedAssignment.Athlete.FullName,
+                WodId = updatedAssignment.WodId,
+                WodTitle = updatedAssignment.Wod.Title,
+                AssignedDate = updatedAssignment.AssignedDate,
+                DueDate = updatedAssignment.DueDate,
+                Status = updatedAssignment.Status,
+                Notes = updatedAssignment.Notes
+            };
+
+            return Ok(result);
         }
     }
 }

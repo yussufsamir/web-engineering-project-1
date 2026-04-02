@@ -7,5 +7,6 @@ namespace fitness_tracker.Services
         Task<List<Wod>> GetAllWodsAsync();
         Task<Wod?> GetWodByIdAsync(int id);
         Task<Wod> CreateWodAsync(Wod newWod);
+        Task<Wod?> UpdateWodAsync(int id, Wod updatedWod);
     }
 }

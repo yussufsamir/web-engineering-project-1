@@ -5,6 +5,7 @@ namespace fitness_tracker.Services
     public interface IAssignmentService
     {
         Task<List<WorkoutAssignment>> GetAssignmentsByAthleteIdAsync(int athleteId);
+        Task<WorkoutAssignment?> UpdateAssignmentAsync(int id, WorkoutAssignment updatedAssignment);
         Task<(WorkoutAssignment? Assignment, string? ErrorMessage)> CreateAssignmentAsync(WorkoutAssignment newAssignment);
     }
 }

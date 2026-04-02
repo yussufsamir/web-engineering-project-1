@@ -84,5 +84,37 @@ namespace fitness_tracker.controllers
 
             return CreatedAtAction(nameof(GetWodById), new { id = createdWod.Id }, result);
         }
+
+        [Authorize(Roles = "Coach")]
+        [Authorize(Roles = "Coach,Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateWod(int id, [FromBody] UpdateWodDto dto)
+        {
+            var wod = new Wod
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                Category = dto.Category,
+                Difficulty = dto.Difficulty
+            };
+
+            var updatedWod = await _wodService.UpdateWodAsync(id, wod);
+
+            if (updatedWod == null)
+                return NotFound();
+
+            var result = new WodResponseDto
+            {
+                Id = updatedWod.Id,
+                Title = updatedWod.Title,
+                Description = updatedWod.Description,
+                Category = updatedWod.Category,
+                Difficulty = updatedWod.Difficulty,
+                CreatedAt = updatedWod.CreatedAt
+            };
+
+            return Ok(result);
+        }
+        
     }
 }
