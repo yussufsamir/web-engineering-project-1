@@ -46,6 +46,14 @@ The system implements authentication, authorization, DTO validation, and optimiz
 - **Postman**  
   Used for testing and documenting API endpoints.
 
+## Why HTTP-Only Cookies Are More Secure
+
+HTTP-only cookies are considered more secure than storing tokens in local storage because they are not accessible through JavaScript.
+
+This protects authentication tokens from being stolen through Cross-Site Scripting (XSS) attacks, where malicious scripts can access and extract sensitive data.
+
+As a result, HTTP-only cookies are widely used in production systems as a secure method for handling authentication.
+
 ## API Testing Screenshots
 
 All Postman testing results are included in the `Screenshots` folder within the project.
