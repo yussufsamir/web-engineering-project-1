@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using fitness_tracker.Services;
 using fitness_tracker.DTOs;
+using System.Security.Claims;
 using fitness_tracker.models;
 using Microsoft.AspNetCore.Authorization;
 namespace fitness_tracker.controllers

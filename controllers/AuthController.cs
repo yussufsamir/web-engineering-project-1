@@ -57,7 +57,8 @@ namespace fitness_tracker.controllers
         private string GenerateToken(dynamic user)
         {
             var jwtSettings = _config.GetSection("Jwt");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+            var keyString = jwtSettings["Key"] ?? throw new Exception("JWT Key is missing.");
+            var key = Encoding.ASCII.GetBytes(keyString);
 
             var claims = new[]
             {
