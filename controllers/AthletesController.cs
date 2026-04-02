@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using fitness_tracker.Services;
 using fitness_tracker.DTOs;
 using fitness_tracker.models;
+using Microsoft.AspNetCore.Authorization;
 namespace fitness_tracker.controllers
 {
     [ApiController]
@@ -15,6 +16,7 @@ namespace fitness_tracker.controllers
             _athleteService = athleteService;
         }
 
+        [Authorize(Roles = "Admin,Coach")]    
         [HttpGet]
         public IActionResult GetAllAthletes()
         {
@@ -29,6 +31,7 @@ namespace fitness_tracker.controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Athlete,Coach,Admin")]
         [HttpGet("{id}")]
         public IActionResult GetAthleteById(int id)
         {
@@ -36,6 +39,9 @@ namespace fitness_tracker.controllers
 
             if (athlete == null)
                 return NotFound();
+            if (User.IsInRole("Athlete") && User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value != athlete.Id.ToString())
+                return Forbid();
+
             var result = new AthleteResponseDto
             {
                 Id = athlete.Id,
@@ -69,6 +75,8 @@ namespace fitness_tracker.controllers
 
             return CreatedAtAction(nameof(GetAthleteById), new { id = result.Id }, result);
         }
+
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult DeleteAthlete(int id)
         {
@@ -79,6 +87,8 @@ namespace fitness_tracker.controllers
 
             return NoContent();
         }
+
+        [Authorize(Roles = "Athlete,Admin")]
         [HttpPut("{id}")]
         public IActionResult UpdateAthlete(int id, [FromBody] UpdateAthleteDto dto)
         {

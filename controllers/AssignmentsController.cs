@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using fitness_tracker.models;
 using fitness_tracker.Services;
 using fitness_tracker.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace fitness_tracker.controllers
 {
@@ -16,10 +18,16 @@ namespace fitness_tracker.controllers
             _assignmentService = assignmentService;
         }
 
+        [Authorize(Roles = "Athlete,Coach")]
         [HttpGet("athlete/{athleteId}")]
         public IActionResult GetAssignmentsByAthleteId(int athleteId)
         {
             var assignments = _assignmentService.GetAssignmentsByAthleteId(athleteId);
+            var userId = int.Parse(User.FindFirst("UserId").Value);
+            var role = User.FindFirst(ClaimTypes.Role).Value;
+
+            if (role == "Athlete" && userId != athleteId)
+                return Forbid();
 
             if (!assignments.Any())
                 return NotFound();
@@ -40,6 +48,7 @@ namespace fitness_tracker.controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Coach")]
         [HttpPost]
         public IActionResult CreateAssignment([FromBody] CreateAssignmentDto dto)
         {

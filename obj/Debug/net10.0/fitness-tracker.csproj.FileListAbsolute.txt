@@ -153,3 +153,6 @@ D:\web-engineering project 1\fitness-tracker\bin\Debug\net10.0\runtimes\win-x64\
 D:\web-engineering project 1\fitness-tracker\bin\Debug\net10.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 D:\web-engineering project 1\fitness-tracker\obj\Debug\net10.0\fitness-tracker.csproj.AssemblyReference.cache
 D:\web-engineering project 1\fitness-tracker\obj\Debug\net10.0\fitness-.44AA9CE2.Up2Date
+D:\web-engineering project 1\fitness-tracker\obj\Debug\net10.0\fitness-tracker.sourcelink.json
+D:\web-engineering project 1\fitness-tracker\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\web-engineering project 1\fitness-tracker\bin\Debug\net10.0\BCrypt.Net-Next.dll

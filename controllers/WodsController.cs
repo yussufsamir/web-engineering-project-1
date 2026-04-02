@@ -3,6 +3,7 @@ using fitness_tracker.models;
 using fitness_tracker.Services;
 using fitness_tracker.DTOs;
 using fitness_tracker.models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace fitness_tracker.controllers
 {
@@ -16,6 +17,7 @@ namespace fitness_tracker.controllers
             _wodService = wodService;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetAllWods()
         {
@@ -32,7 +34,7 @@ namespace fitness_tracker.controllers
 
             return Ok(result);
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult GetWodById(int id)
         {
@@ -53,6 +55,7 @@ namespace fitness_tracker.controllers
             return Ok(res);
         }
 
+        [Authorize(Roles = "Coach")]
         [HttpPost]
         public IActionResult CreateWod([FromBody] CreateWodDto dto)
         {
