@@ -6,6 +6,8 @@ It supports athletes and coaches, allowing workout creation (WODs), assignment, 
 
 The system implements authentication, authorization, DTO validation, and optimized database queries using Entity Framework Core.
 
+Authentication is implemented using JWT stored in HTTP-only cookies for improved security.
+
 ---
 
 ## Features
@@ -46,6 +48,14 @@ The system implements authentication, authorization, DTO validation, and optimiz
 - **Postman**  
   Used for testing and documenting API endpoints.
 
+## Why HTTP-Only Cookies Are More Secure
+
+HTTP-only cookies are considered more secure than storing tokens in local storage because they are not accessible through JavaScript.
+
+This protects authentication tokens from being stolen through Cross-Site Scripting (XSS) attacks, where malicious scripts can access and extract sensitive data.
+
+As a result, HTTP-only cookies are widely used in production systems as a secure method for handling authentication.
+
 ## API Testing Screenshots
 
 All Postman testing results are included in the `Screenshots` folder within the project.
@@ -59,6 +69,8 @@ The screenshots demonstrate:
 - WOD creation and retrieval
 - Assignment creation
 - Coach dashboard
+
+
 
 ---
 
