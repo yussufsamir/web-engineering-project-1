@@ -35,7 +35,9 @@ namespace fitness_tracker.controllers
                     return Unauthorized(new { message = "Invalid credentials" });
 
                 var athleteToken = GenerateToken(athlete);
-                return Ok(new { token = athleteToken });
+                SetJwtCookie(athleteToken);
+
+                return Ok(new { message = "Login successful" });
             }
 
             var coach = _context.Coaches.FirstOrDefault(c => c.Email == dto.Email);
@@ -48,7 +50,9 @@ namespace fitness_tracker.controllers
                     return Unauthorized(new { message = "Invalid credentials" });
 
                 var coachToken = GenerateToken(coach);
-                return Ok(new { token = coachToken });
+                SetJwtCookie(coachToken);
+
+                return Ok(new { message = "Login successful" });
             }
 
             return Unauthorized(new { message = "Invalid credentials" });
@@ -88,9 +92,10 @@ namespace fitness_tracker.controllers
         [HttpPost("signup/athlete")]
         public IActionResult SignupAthlete([FromBody] AthleteSignupDto dto)
         {
-            var emailExists = _context.Athletes.Any(a => a.Email == dto.Email);
+            var athleteEmailExists = _context.Athletes.Any(a => a.Email == dto.Email);
+            var coachEmailExists = _context.Coaches.Any(c => c.Email == dto.Email);
 
-            if (emailExists)
+            if (athleteEmailExists || coachEmailExists)
                 return BadRequest(new { message = "Email already exists." });
 
             var athlete = new Athlete
@@ -105,12 +110,9 @@ namespace fitness_tracker.controllers
             _context.SaveChanges();
 
             var token = GenerateToken(athlete);
+            SetJwtCookie(token);
 
-            return Ok(new
-            {
-                message = "Athlete account created successfully.",
-                token = token
-            });
+            return Ok(new { message = "Athlete account created successfully." });
         }
         [HttpPost("signup/coach")]
         public IActionResult SignupCoach([FromBody] CoachSignupDto dto)
@@ -133,12 +135,32 @@ namespace fitness_tracker.controllers
             _context.SaveChanges();
 
             var token = GenerateToken(coach);
+            SetJwtCookie(token);
 
-            return Ok(new
+            return Ok(new { message = "Coach account created successfully." });
+        }
+
+        private void SetJwtCookie(string token)
+        {
+            Response.Cookies.Append("token", token, new CookieOptions
             {
-                message = "Coach account created successfully.",
-                token = token
+                HttpOnly = true,
+                Secure = false, // change to true in production with HTTPS
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(2)
             });
+        }
+
+        private void ClearJwtCookie()
+        {
+            Response.Cookies.Delete("token");
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            ClearJwtCookie();
+            return Ok(new { message = "Logged out successfully" });
         }
     }
 }
