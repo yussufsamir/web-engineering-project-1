@@ -6,6 +6,8 @@ It supports athletes and coaches, allowing workout creation (WODs), assignment, 
 
 The system implements authentication, authorization, DTO validation, and optimized database queries using Entity Framework Core.
 
+Authentication is implemented using JWT stored in HTTP-only cookies for improved security.
+
 ---
 
 ## Features
@@ -67,6 +69,8 @@ The screenshots demonstrate:
 - WOD creation and retrieval
 - Assignment creation
 - Coach dashboard
+
+
 
 ---
 
